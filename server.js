@@ -198,7 +198,7 @@ app.post("/webhook", async (req, res) => {
       const text = event.message?.text || "";
 
       console.log("DM From:", senderId);
-      console.log("Message:", text);
+      console.log("DM Text:", text);
 
       let reply = "Welcome to Surya Tea Shop ☕";
 
@@ -210,7 +210,7 @@ app.post("/webhook", async (req, res) => {
         reply = "Tea starts from ₹20";
       }
 
-      await sendDM(senderId, reply);
+      await sendInstagramDM(senderId, reply);
       return res.sendStatus(200);
     }
 
@@ -220,44 +220,46 @@ app.post("/webhook", async (req, res) => {
       const commentText = change.value.text || "";
       const userId = change.value.from?.id;
 
-      if (userId === "17841422146904113") return res.sendStatus(200);
+      const MY_IG_ID = "17841422146904113";
+      if (userId === MY_IG_ID) {
+        console.log("Ignoring own comment");
+        return res.sendStatus(200);
+      }
 
       console.log("Comment:", commentText);
       console.log("User:", userId);
 
-      let reply = "Welcome to Surya Tea Shop ☕";
+      let reply = "🙏 Thanks for commenting!";
 
       if (commentText.toLowerCase().includes("menu")) {
-        reply = "Tea Menu: Masala Tea ₹20, Ginger Tea ₹25, Green Tea ₹30";
-      } else if (commentText.toLowerCase().includes("offer")) {
-        reply = "🎉 Today's Offer: Buy 2 Teas Get 1 Free!";
-      } else if (commentText.toLowerCase().includes("price")) {
-        reply = "☕ Tea starts from ₹20 only.";
+        reply =
+          "🙏 Thanks for commenting!\nTea Menu: Masala Tea ₹20, Ginger Tea ₹25, Green Tea ₹30";
       }
 
       const commentId = change.value.id;
 
       // 1. Reply to comment publicly
-      try {
-        const response = await axios.post(
-          `https://graph.facebook.com/v23.0/${commentId}/replies`,
-          {
-            message: reply
-          },
-          {
-            params: { access_token: ACCESS_TOKEN }
+      await axios.post(
+        `https://graph.facebook.com/v23.0/${commentId}/replies`,
+        {
+          message: reply
+        },
+        {
+          params: {
+            access_token: ACCESS_TOKEN
           }
-        );
-        console.log("Reply Sent:", response.data);
-      } catch (err) {
-        console.error("Reply Error:", err.response?.data || err.message);
-      }
+        }
+      );
+
+      console.log("Reply Sent");
 
       // 2. Send DM privately
-      await sendDM(
+      await sendInstagramDM(
         userId,
-        `👋 Thanks for commenting! ${reply}`
+        "👋 Thanks for commenting on our post!\n\nTea Menu:\n☕ Masala Tea ₹20\n☕ Ginger Tea ₹25\n☕ Green Tea ₹30"
       );
+
+      console.log("DM Sent");
     }
 
     res.sendStatus(200);
@@ -271,7 +273,7 @@ app.post("/webhook", async (req, res) => {
 // =====================================
 // SEND DM HELPER
 // =====================================
-async function sendDM(recipientId, message) {
+async function sendInstagramDM(recipientId, message) {
   try {
     const response = await axios.post(
       `https://graph.facebook.com/v23.0/me/messages`,
