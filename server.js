@@ -87,10 +87,24 @@ app.get("/ig-test", async (req, res) => {
 });
 
 // =====================================
-// DEBUG SHOW-TOKEN ROUTE
+// DEBUG PAGE-INFO ROUTE
 // =====================================
-app.get("/show-token", (req, res) => {
-  res.send(ACCESS_TOKEN);
+app.get("/page-info", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://graph.facebook.com/v23.0/me",
+      {
+        params: {
+          fields: "id,name,instagram_business_account",
+          access_token: ACCESS_TOKEN
+        }
+      }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    res.json(err.response?.data || err.message);
+  }
 });
 
 // =====================================
