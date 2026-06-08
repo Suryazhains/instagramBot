@@ -87,6 +87,24 @@ app.get("/ig-test", async (req, res) => {
 });
 
 // =====================================
+// DEBUG SHOW-TOKEN ROUTE
+// =====================================
+app.get("/show-token", (req, res) => {
+  res.send(ACCESS_TOKEN);
+});
+
+// =====================================
+// DEBUG TOKEN-INFO ROUTE
+// =====================================
+app.get("/token-info", (req, res) => {
+  res.json({
+    length: ACCESS_TOKEN?.length || 0,
+    first20: ACCESS_TOKEN?.substring(0, 20),
+    last20: ACCESS_TOKEN?.slice(-20)
+  });
+});
+
+// =====================================
 // HOME
 // =====================================
 app.get("/", (req, res) => {
