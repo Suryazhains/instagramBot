@@ -190,14 +190,37 @@ app.post("/webhook", async (req, res) => {
       return res.sendStatus(200);
     }
 
-    const change = entry.changes?.[0];
-    if (!change) {
+    // Handle Instagram Messages (DMs)
+    if (entry.messaging) {
+      const event = entry.messaging[0];
+
+      const senderId = event.sender?.id;
+      const text = event.message?.text || "";
+
+      console.log("DM From:", senderId);
+      console.log("Message:", text);
+
+      let reply = "Welcome to Surya Tea Shop ☕";
+
+      if (text.toLowerCase().includes("menu")) {
+        reply = "Tea Menu: Masala Tea ₹20, Ginger Tea ₹25, Green Tea ₹30";
+      } else if (text.toLowerCase().includes("offer")) {
+        reply = "🎉 Today's Offer: Buy 2 Get 1 Free";
+      } else if (text.toLowerCase().includes("price")) {
+        reply = "Tea starts from ₹20";
+      }
+
+      await sendDM(senderId, reply);
       return res.sendStatus(200);
     }
 
-    if (change.field === "comments" && change.value) {
+    // Handle Comments
+    const change = entry.changes?.[0];
+    if (change && change.field === "comments" && change.value) {
       const commentText = change.value.text || "";
       const userId = change.value.from?.id;
+
+      if (userId === "17841422146904113") return res.sendStatus(200);
 
       console.log("Comment:", commentText);
       console.log("User:", userId);
@@ -214,6 +237,7 @@ app.post("/webhook", async (req, res) => {
 
       const commentId = change.value.id;
 
+      // 1. Reply to comment publicly
       try {
         const response = await axios.post(
           `https://graph.facebook.com/v23.0/${commentId}/replies`,
@@ -228,6 +252,12 @@ app.post("/webhook", async (req, res) => {
       } catch (err) {
         console.error("Reply Error:", err.response?.data || err.message);
       }
+
+      // 2. Send DM privately
+      await sendDM(
+        userId,
+        `👋 Thanks for commenting! ${reply}`
+      );
     }
 
     res.sendStatus(200);
@@ -237,6 +267,31 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(200);
   }
 });
+
+// =====================================
+// SEND DM HELPER
+// =====================================
+async function sendDM(recipientId, message) {
+  try {
+    const response = await axios.post(
+      `https://graph.facebook.com/v23.0/me/messages`,
+      {
+        recipient: {
+          id: recipientId
+        },
+        message: {
+          text: message
+        }
+      },
+      {
+        params: { access_token: ACCESS_TOKEN }
+      }
+    );
+    console.log("DM Sent:", response.data);
+  } catch (err) {
+    console.error("DM Error:", err.response?.data || err.message);
+  }
+}
 
 app.listen(PORT, () => {
   console.log(`Server Running On Port ${PORT}`);
