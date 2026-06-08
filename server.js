@@ -91,12 +91,12 @@ app.post("/webhook", async (req, res) => {
   try {
     console.log(JSON.stringify(req.body, null, 2));
 
-    const entry = req.body.entry?.;
+    const entry = req.body.entry?.[0];
     if (!entry) {
       return res.sendStatus(200);
     }
 
-    const change = entry.changes?.;
+    const change = entry.changes?.[0];
     if (!change) {
       return res.sendStatus(200);
     }
