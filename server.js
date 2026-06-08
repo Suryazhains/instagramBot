@@ -212,7 +212,22 @@ app.post("/webhook", async (req, res) => {
         reply = "☕ Tea starts from ₹20 only.";
       }
 
-      await sendInstagramDM(userId, reply);
+      const commentId = change.value.id;
+
+      try {
+        const response = await axios.post(
+          `https://graph.facebook.com/v23.0/${commentId}/replies`,
+          {
+            message: reply
+          },
+          {
+            params: { access_token: ACCESS_TOKEN }
+          }
+        );
+        console.log("Reply Sent:", response.data);
+      } catch (err) {
+        console.error("Reply Error:", err.response?.data || err.message);
+      }
     }
 
     res.sendStatus(200);
@@ -222,28 +237,6 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(200);
   }
 });
-
-// =====================================
-// SEND DM
-// =====================================
-async function sendInstagramDM(recipientId, message) {
-  try {
-    const response = await axios.post(
-      "https://graph.facebook.com/v23.0/me/messages",
-      {
-        recipient: { id: recipientId },
-        message: { text: message }
-      },
-      {
-        params: { access_token: ACCESS_TOKEN }
-      }
-    );
-
-    console.log("DM Sent:", response.data);
-  } catch (err) {
-    console.error("DM Error:", err.response?.data || err.message);
-  }
-}
 
 app.listen(PORT, () => {
   console.log(`Server Running On Port ${PORT}`);
