@@ -92,11 +92,13 @@ app.post("/webhook", async (req, res) => {
     console.log(JSON.stringify(req.body, null, 2));
 
     const entry = req.body.entry?.;
+
     if (!entry) {
       return res.sendStatus(200);
     }
 
     const change = entry.changes?.;
+
     if (!change) {
       return res.sendStatus(200);
     }
@@ -111,14 +113,7 @@ app.post("/webhook", async (req, res) => {
       let reply = "Welcome to Surya Tea Shop ☕";
 
       if (commentText.toLowerCase().includes("menu")) {
-        reply = `
-☕ Tea Menu
-
-Masala Tea ₹20
-Ginger Tea ₹25
-Green Tea ₹30
-Lemon Tea ₹25
-`;
+        reply = "Tea Menu: Masala Tea ₹20, Ginger Tea ₹25, Green Tea ₹30";
       } else if (commentText.toLowerCase().includes("offer")) {
         reply = "🎉 Today's Offer: Buy 2 Teas Get 1 Free!";
       } else if (commentText.toLowerCase().includes("price")) {
@@ -129,8 +124,13 @@ Lemon Tea ₹25
     }
 
     res.sendStatus(200);
+
   } catch (err) {
-    console.error("Webhook Error:", err.response?.data || err.message);
+    console.error(
+      "Webhook Error:",
+      err.response?.data || err.message
+    );
+
     res.sendStatus(200);
   }
 });
