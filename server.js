@@ -41,9 +41,8 @@ app.get("/whoami", async (req, res) => {
     );
 
     res.json(response.data);
-
   } catch (err) {
-    res.json(err.response?.data || { error: err.message });
+    res.json(err.response?.data || err.message);
   }
 });
 
