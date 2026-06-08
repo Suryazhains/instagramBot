@@ -46,6 +46,26 @@ app.get("/whoami", async (req, res) => {
 });
 
 // =====================================
+// DEBUG CHECK-TOKEN ROUTE
+// =====================================
+app.get("/check-token", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://graph.facebook.com/v23.0/me",
+      {
+        params: {
+          access_token: ACCESS_TOKEN,
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    res.json(err.response?.data || err.message);
+  }
+});
+
+// =====================================
 // HOME
 // =====================================
 app.get("/", (req, res) => {
