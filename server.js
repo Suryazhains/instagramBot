@@ -92,13 +92,11 @@ app.post("/webhook", async (req, res) => {
     console.log(JSON.stringify(req.body, null, 2));
 
     const entry = req.body.entry?.;
-
     if (!entry) {
       return res.sendStatus(200);
     }
 
     const change = entry.changes?.;
-
     if (!change) {
       return res.sendStatus(200);
     }
@@ -126,11 +124,7 @@ app.post("/webhook", async (req, res) => {
     res.sendStatus(200);
 
   } catch (err) {
-    console.error(
-      "Webhook Error:",
-      err.response?.data || err.message
-    );
-
+    console.error("Webhook Error:", err.response?.data || err.message);
     res.sendStatus(200);
   }
 });
