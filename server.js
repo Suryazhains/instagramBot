@@ -12,6 +12,8 @@ const PORT = process.env.PORT || 3000;
 
 console.log("ACCESS TOKEN LOADED:", !!ACCESS_TOKEN);
 console.log("TOKEN LENGTH:", ACCESS_TOKEN?.length || 0);
+console.log("TOKEN FIRST 20:", ACCESS_TOKEN?.substring(0, 20));
+console.log("TOKEN LAST 10:", ACCESS_TOKEN?.slice(-10));
 
 // =====================================
 // DEBUG TOKEN ROUTE
@@ -56,6 +58,26 @@ app.get("/check-token", async (req, res) => {
         params: {
           access_token: ACCESS_TOKEN,
         },
+      }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    res.json(err.response?.data || err.message);
+  }
+});
+
+// =====================================
+// DEBUG IG-TEST ROUTE
+// =====================================
+app.get("/ig-test", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://graph.facebook.com/v23.0/me",
+      {
+        headers: {
+          Authorization: `Bearer ${ACCESS_TOKEN}`
+        }
       }
     );
 
